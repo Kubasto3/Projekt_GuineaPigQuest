@@ -1,0 +1,209 @@
+#include <SFML/Window.hpp>
+#include <SFML/Graphics.hpp>
+#include <iostream>
+#include <cmath>
+
+
+class AnimatedSprite : public sf::Sprite{
+public:
+    void add_animation_frame(int fps){
+        if(fps<25){
+            setTextureRect(sf::IntRect(11, 11, 28, 28));
+        }else if (fps<50){
+            setTextureRect(sf::IntRect(61, 11, 28, 28));
+        }else if (fps<75){
+            setTextureRect(sf::IntRect(111, 11, 28, 28));
+        }else{
+            setTextureRect(sf::IntRect(161, 11, 28, 28));
+        }
+    }
+};
+
+class Obstacle : public AnimatedSprite{
+public:
+    bool czy_glaz_poziomo=false;
+    bool czy_glaz_pionowo=false;
+    sf::Vector2f position_startowa=(sf::Vector2f(0,0));
+    sf::Vector2f pos_obecna=(sf::Vector2f(0,0));
+    Obstacle(){
+    }
+    void animate(sf::Time time){
+        pos_obecna=getPosition();
+        if(czy_glaz_poziomo==true){
+            move(10*time.asSeconds(),0*time.asSeconds());
+            if(std::sqrt((position_startowa.x-pos_obecna.x)*(position_startowa.x-pos_obecna.x))>=50){
+                setPosition(position_startowa);
+            }
+        }else if(czy_glaz_pionowo==true){
+            move(0*time.asSeconds(),10*time.asSeconds());
+            if((std::sqrt((position_startowa.y-pos_obecna.y)*(position_startowa.y-pos_obecna.y))>=50)){
+                setPosition(position_startowa);
+            }
+        }
+    }
+};
+
+class GuineaPig : public AnimatedSprite{
+public:
+GuineaPig  (sf::Vector2f pos){
+     setPosition(pos);
+ }
+      void animate(sf::Time elapsed){
+          sf::FloatRect rectangle_bounds = getGlobalBounds();
+
+                     if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
+
+                         if(rectangle_bounds.top<=0)
+                         {
+                         }
+                         else
+                         {
+                             move(0,
+                                  -150*elapsed.asSeconds());
+                         }
+                     }
+
+                     else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
+                         if(rectangle_bounds.top+rectangle_bounds.height>=800)
+                         {
+
+                         }
+                         else
+                         {
+                             move(0,
+                                  150*elapsed.asSeconds());
+                         }
+                     }
+
+                     else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
+                         if( rectangle_bounds.left<=0)
+                         {
+
+                         }
+                         else
+                         {
+                             move(-150*elapsed.asSeconds(),
+                                  0);
+                         }
+
+                     }
+
+                     else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+                         if(rectangle_bounds.left+rectangle_bounds.width>=1000)
+                         {
+
+                         }
+                         else
+                         {
+                             move(150*elapsed.asSeconds(),
+                                  0);
+                         }
+                     }
+      }
+
+
+};
+
+
+
+
+int main() {
+    // create the window
+    sf::RenderWindow window(sf::VideoMode(1000, 800), "My window");
+
+    // create some shapes
+    std::vector<std::unique_ptr<Obstacle>> wektor;
+
+    sf::Texture texture_swinka;
+    if (!texture_swinka.loadFromFile("swinka.png")) {
+        std::cerr << "Could not load texture" << std::endl;
+        return 1;
+    }
+    GuineaPig Mufik(sf::Vector2f(300,300));
+    Mufik.setTexture(texture_swinka);
+
+    sf::Texture texture_sciana;
+    if (!texture_sciana.loadFromFile("paddle.png")) {
+        std::cerr << "Could not load texture" << std::endl;
+        return 1;
+    }
+
+    for(int i=0;i<=2;i++){
+    std::unique_ptr<Obstacle> sciana = std::make_unique<Obstacle>();
+    sciana->setPosition(rand()%800+1, rand()%600+1);
+    sciana->setTexture(texture_sciana);
+    std::cout<<sciana->getPosition().x<<" "<<sciana->getPosition().y<<std::endl;
+    wektor.emplace_back(move(sciana));
+    }
+
+    sf::Texture texture_glaz;
+    if (!texture_glaz.loadFromFile("glaz.png")) {
+        std::cerr << "Could not load texture" << std::endl;
+        return 1;
+    }
+
+    for(int i=0;i<=2;i++){
+    std::unique_ptr<Obstacle> glaz = std::make_unique<Obstacle>();
+    glaz->setPosition(rand()%800+1, rand()%600+1);
+    glaz->setTexture(texture_glaz);
+    glaz->czy_glaz_pionowo=true;
+    glaz->position_startowa=glaz->getPosition();
+    wektor.emplace_back(move(glaz));
+    }
+
+//    Wall Sciana1;
+//    Sciana1.setTexture(texture_sciana);
+//    Sciana1.setPosition(500,500);
+
+//    Wall Sciana2;
+//    Sciana2.setTexture(texture_sciana);
+//    Sciana2.setPosition(400,400);
+//    Sciana2.rotate(90);
+
+    // run the program as long as the window is open
+    sf::Clock clock;
+    int timer_w=0;
+    while (window.isOpen()) {
+        sf::Time elapsed = clock.restart();
+        // check all the window's events that were triggered since the last iteration of the loop
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            // "close requested" event: we close the window
+            if(event.mouseButton.button == sf::Mouse::Left) {
+                sf::Vector2i mouse_pos = sf::Mouse::getPosition(window);
+                std::cout << "Mouse clicked: " << mouse_pos.x << ", " << mouse_pos.y << std::endl;
+            }
+            if (event.type == sf::Event::Closed)
+                window.close();
+        }
+
+        // clear the window with black color
+        window.clear(sf::Color::Black);
+
+        // draw everything here...
+        Mufik.animate(elapsed);
+        Mufik.add_animation_frame(timer_w);
+        timer_w++;
+        if(timer_w==100){
+            timer_w=0;
+        }
+        for(auto &i:wektor){
+            if(Mufik.getGlobalBounds().intersects(i->getGlobalBounds())){
+            std::cerr<<"Bum"<<std::endl;
+            Mufik.setPosition(50,500);
+            }
+            i->animate(elapsed);
+            if(i->czy_glaz_pionowo==true){
+            std::cout<<i->position_startowa.x<<" "<<i->pos_obecna.x<<" "<<i->position_startowa.y<<" "<<i->pos_obecna.y<<" "<<std::endl;
+            }
+            window.draw(*i);
+        }
+        window.draw(Mufik);
+//        window.draw(Sciana1);
+//        window.draw(Sciana2);
+        // end the current frame
+        window.display();
+    }
+
+    return 0;
+}
