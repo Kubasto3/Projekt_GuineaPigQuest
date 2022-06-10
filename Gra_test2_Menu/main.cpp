@@ -19,7 +19,7 @@ public:
         }
     }
 };
-//korzen sf::IntRect(0,0,104,16)
+
 class Obstacle : public AnimatedSprite{
 public:
     bool czy_glaz_poziomo=false;
@@ -52,6 +52,7 @@ public:
 
 class GuineaPig : public AnimatedSprite{
 public:
+    int zycia=3;
     GuineaPig  (sf::Vector2f pos){
         setPosition(pos);
     }
@@ -116,7 +117,7 @@ public:
 
 int main() {
 
-    sf::RenderWindow window(sf::VideoMode(1000, 800), "My window");
+    sf::RenderWindow window(sf::VideoMode(1000, 800), "Guinea Pig quest!");
     //Menu:
     sf::Texture texture_tlo;
     if (!texture_tlo.loadFromFile("Tlo.png")) {
@@ -133,7 +134,7 @@ int main() {
     }
     sf::Sprite Button1;
     Button1.setTexture(texture_button1);
-    Button1.setPosition(450,300);
+    Button1.setPosition(400,250);
 
     sf::Texture texture_button2;
     if (!texture_button2.loadFromFile("Przycisk_poziom2.png")) {
@@ -143,10 +144,21 @@ int main() {
 
     sf::Sprite Button2;
     Button2.setTexture(texture_button2);
-    Button2.setPosition(450,400);
+    Button2.setPosition(400,400);
+
+    sf::Texture texture_ogrze;
+    if (!texture_ogrze.loadFromFile("Przycisk_ogrze.png")) {
+        std::cerr << "Could not load texture" << std::endl;
+        return 1;
+    }
+
+    sf::Sprite Button3;
+    Button3.setTexture(texture_ogrze);
+    Button3.setPosition(400,550);
 
     bool Poziom1_flaga=false;
     bool Poziom2_flaga=false;
+    bool ogrze_flaga=false;
 
     sf::Texture texture_swinka;
     if (!texture_swinka.loadFromFile("swinka.png")) {
@@ -168,7 +180,7 @@ int main() {
         return 1;
     }
 
-    //POZIOM 1
+////////////////////////////POZIOM 1//////////////////////////////////////
     std::vector<std::unique_ptr<Obstacle>> wektor;
     for(int i=0;i<=21;i++){
         std::unique_ptr<Obstacle> sciana = std::make_unique<Obstacle>();
@@ -327,7 +339,7 @@ int main() {
         }
     }
 
-    //POZIOM 2
+/////////////////////////POZIOM 2///////////////////////////////////////
     std::vector<std::unique_ptr<Obstacle>> wektor2;
 
     for(int i=0;i<=39;i++){
@@ -603,12 +615,15 @@ int main() {
             break;
         }
     }
-
+/////////////////////Marchewki + ikona okna + teksty/////////////////////////////
     sf::Texture texture_marchewka;
     if (!texture_marchewka.loadFromFile("marchewka.png")) {
         std::cerr << "Could not load texture" << std::endl;
         return 1;
     }
+    sf::Image icon;
+    icon.loadFromFile("marchewka.png");
+    window.setIcon(icon.getSize().x,icon.getSize().y,icon.getPixelsPtr());
 
     Obstacle Marchewka1;
     Marchewka1.setPosition(423, 210);
@@ -625,29 +640,48 @@ int main() {
     Marchewka2.odleglosc_ruchu=15;
 
     Obstacle Marchewka3;
-    Marchewka3.setPosition(443, 559);
+    Marchewka3.setPosition(433, 549);
     Marchewka3.setTexture(texture_marchewka);
     Marchewka3.czy_glaz_pionowo=true;
     Marchewka3.position_startowa=Marchewka2.getPosition();
     Marchewka3.odleglosc_ruchu=15;
 
     Obstacle Marchewka4;
-    Marchewka4.setPosition(840, 157);
+    Marchewka4.setPosition(840, 147);
     Marchewka4.setTexture(texture_marchewka);
     Marchewka4.czy_glaz_pionowo=true;
     Marchewka4.position_startowa=Marchewka2.getPosition();
     Marchewka4.odleglosc_ruchu=15;
 
     Obstacle Marchewka5;
-    Marchewka5.setPosition(732, 561);
+    Marchewka5.setPosition(722, 561);
     Marchewka5.setTexture(texture_marchewka);
     Marchewka5.czy_glaz_pionowo=true;
     Marchewka5.position_startowa=Marchewka2.getPosition();
     Marchewka5.odleglosc_ruchu=15;
 
+    sf::Font font;
+    if (!font.loadFromFile("OpenSans-Bold.ttf")) {
+        std::cerr << "Could not load texture" << std::endl;
+        return 1;
+    }
+    sf::Text text_zycia;
+    text_zycia.setFont(font);
+    text_zycia.setString("Szanse: 3");
+    text_zycia.setCharacterSize(30);
+    text_zycia.setPosition(100,700);
+
+    sf::Text text_ogrze;
+    text_ogrze.setFont(font);
+    text_ogrze.setString
+            ("Unikaj ostrych korzeni oraz osuwajacych sie glazow! \nWygrasz kiedy zbierzesz wszystkie marchewki \n \n \n Poruszaj sie strzalkami \n Nacisnij \"R\", aby powrocic do menu \n Tworca: Jakub Stolinski 151191 \n Grafika: Lucja Swat");
+    text_ogrze.setCharacterSize(30);
+    text_ogrze.setPosition(200,300);
+
     sf::Clock clock;
     int timer_w=0;
 
+    ///////////////////////////GLOWNA PETLA/////////////////////////////////////
     while (window.isOpen()) {
         sf::Time elapsed = clock.restart();
         sf::Event event;
@@ -657,7 +691,7 @@ int main() {
             if (event.type == sf::Event::MouseButtonPressed) {
                 if(event.mouseButton.button == sf::Mouse::Left) {
                     sf::Vector2i mouse_pos = sf::Mouse::getPosition(window);
-                    std::cout << "Mouse clicked: " << mouse_pos.x << ", " << mouse_pos.y << std::endl;
+                    //std::cout << "Mouse clicked: " << mouse_pos.x << ", " << mouse_pos.y << std::endl;
 
                     if(Button1.getGlobalBounds().contains(mouse_pos.x,mouse_pos.y)){
                         Poziom1_flaga=true;
@@ -665,12 +699,36 @@ int main() {
                     if(Button2.getGlobalBounds().contains(mouse_pos.x,mouse_pos.y)){
                         Poziom2_flaga=true;
                     }
+                    if(Button3.getGlobalBounds().contains(mouse_pos.x,mouse_pos.y)){
+                        ogrze_flaga=true;
+                    }
                 }
             }
+            if(sf::Keyboard::isKeyPressed(sf::Keyboard::R)){
+                if(Poziom1_flaga==true){
+                    Poziom1_flaga=false;
+                    Marchewka1.czy_zebrane=false;
+                    Marchewka2.czy_zebrane=false;
+                    Mufik.setPosition(140,345);
+                    Mufik.zycia=3;
 
+                }
+                if(Poziom2_flaga==true){
+                    Poziom2_flaga=false;
+                    Marchewka3.czy_zebrane=false;
+                    Marchewka4.czy_zebrane=false;
+                    Marchewka5.czy_zebrane=false;
+                    Mufik.setPosition(140,345);
+                    Mufik.zycia=3;
+                }
+                if(ogrze_flaga==true){
+                    ogrze_flaga=false;
+                }
+            }
         }
         window.clear(sf::Color::Black);
         window.draw(Tlo);
+////////////////////////POZIOM 1:///////////////////////////////////////
         if(Poziom1_flaga==true){
             Mufik.animate(elapsed);
             Mufik.add_animation_frame(timer_w);
@@ -682,6 +740,7 @@ int main() {
                 if(Mufik.getGlobalBounds().intersects(i->getGlobalBounds())){
                     std::cerr<<"Bum"<<std::endl;
                     Mufik.setPosition(140,345);
+                    Mufik.zycia=Mufik.zycia-1;
                 }
                 i->animate(elapsed);
                 if(i->czy_glaz_pionowo==true||i->czy_glaz_poziomo==true){
@@ -704,14 +763,26 @@ int main() {
                 window.draw(Marchewka2);
             }
             window.draw(Mufik);
-            if(Marchewka1.czy_zebrane==true&&Marchewka2.czy_zebrane==true){
+
+            if(Mufik.zycia==3){
+              text_zycia.setString("Szanse: 3");
+            }else if(Mufik.zycia==2){
+               text_zycia.setString("Szanse: 2");
+            }else{
+              text_zycia.setString("Szanse: 1");
+            }
+            window.draw(text_zycia);
+            if((Marchewka1.czy_zebrane==true&&Marchewka2.czy_zebrane==true)||Mufik.zycia<=0){
                 Poziom1_flaga=false;
                 Marchewka1.czy_zebrane=false;
                 Marchewka2.czy_zebrane=false;
                 Mufik.setPosition(140,345);
+                Mufik.zycia=3;
                 std::cerr<<"Gratulacje!!"<<std::endl;
             }
         }
+
+///////////////////////////Poziom 2:////////////////////////////////////////
         if(Poziom2_flaga==true){
             Mufik.animate(elapsed);
             Mufik.add_animation_frame(timer_w);
@@ -721,8 +792,9 @@ int main() {
             }
             for(auto &i:wektor2){
                 if(Mufik.getGlobalBounds().intersects(i->getGlobalBounds())){
-                    std::cerr<<"Bum"<<std::endl;
+                    std::cerr<<"Bum"<<std::endl; 
                     Mufik.setPosition(140,345);
+                    Mufik.zycia=Mufik.zycia-1;
                 }
                 i->animate(elapsed);
                 if(i->czy_glaz_pionowo==true||i->czy_glaz_poziomo==true){
@@ -752,19 +824,33 @@ int main() {
                 window.draw(Marchewka5);
             }
             window.draw(Mufik);
+            if(Mufik.zycia==3){
+              text_zycia.setString("Szanse: 3");
+            }else if(Mufik.zycia==2){
+               text_zycia.setString("Szanse: 2");
+            }else{
+              text_zycia.setString("Szanse: 1");
+            }
+            window.draw(text_zycia);
 
-            if(Marchewka3.czy_zebrane==true&&Marchewka4.czy_zebrane==true&&Marchewka5.czy_zebrane){
+            if((Marchewka3.czy_zebrane==true&&Marchewka4.czy_zebrane==true&&Marchewka5.czy_zebrane)||Mufik.zycia<=0){
                 Poziom2_flaga=false;
                 Marchewka3.czy_zebrane=false;
                 Marchewka4.czy_zebrane=false;
                 Marchewka5.czy_zebrane=false;
                 Mufik.setPosition(140,345);
+                Mufik.zycia=3;
                 std::cerr<<"Gratulacje!!"<<std::endl;
             }
         }
-        if(Poziom1_flaga==false&&Poziom2_flaga==false){
+
+        if(ogrze_flaga==true){
+            window.draw(text_ogrze);
+        }
+        if(Poziom1_flaga==false&&Poziom2_flaga==false&&ogrze_flaga==false){
             window.draw(Button1);
             window.draw(Button2);
+            window.draw(Button3);
         }
         window.display();
     }
