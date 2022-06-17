@@ -2,6 +2,8 @@
 #define OBSTACLE_H
 #include "animatedsprite.h"
 
+//Klasa nieruchomej przeszkody
+//To właśnie z tej klasy dziedziczą klas, które również są przeszkodami, lecz poruszają się
 
 class Obstacle : public AnimatedSprite
 {

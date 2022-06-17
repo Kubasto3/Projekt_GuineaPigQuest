@@ -7,9 +7,9 @@ GuineaPig::~GuineaPig(){
 
 void GuineaPig::animate(sf::Time elapsed){
     sf::FloatRect rectangle_bounds = getGlobalBounds();
-    add_animation_frame(elapsed);
+    add_animation_frame(elapsed);//animacja poczdasz ruchu
     pos_obecna=getPosition();
-    // Poruszanie się klawiszami:
+    // Poruszanie się klawiszami i ewentualne zabezbieczenie przed wyjściem z ekranu:
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
 
         if(rectangle_bounds.top<=0)
@@ -41,8 +41,6 @@ void GuineaPig::animate(sf::Time elapsed){
         }
         else
         {
-            //setScale(-1,1);
-            //setPosition(pos_obecna.x,pos_obecna.y);
             move(-150*elapsed.asSeconds(),
                  0);
         }
@@ -56,8 +54,6 @@ void GuineaPig::animate(sf::Time elapsed){
         }
         else
         {
-            //setScale(1,1);
-            //setPosition(pos_obecna.x,pos_obecna.y);
             move(150*elapsed.asSeconds(),
                  0);
         }

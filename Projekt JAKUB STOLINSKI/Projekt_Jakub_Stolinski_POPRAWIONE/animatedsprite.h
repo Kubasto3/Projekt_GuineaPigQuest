@@ -4,6 +4,9 @@
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 
+//Klasa abstrakcyjna i bazowa wszystkich pozostałych klas wykorzystanych w grze
+//Klasa zawiera wspólny wektor pozycji początkowej klas oraz wspólną dla wszystkich klas metodą animate() oraz destruktor
+//klasa zawiera dodatkowo metodą pozwalającą animować obiekty posiadające animację
 
 class AnimatedSprite : public sf::Sprite
 {

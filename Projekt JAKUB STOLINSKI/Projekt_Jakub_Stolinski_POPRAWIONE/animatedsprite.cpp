@@ -5,11 +5,11 @@
 
 //Ciągle odwarzenie animacji danego obiektu
 void AnimatedSprite::add_animation_frame(sf::Time elapsed){
-    if(elapsed.asMicroseconds()<200){
+    if(elapsed.asMicroseconds()%2==0&&elapsed.asMicroseconds()<250){
         setTextureRect(sf::IntRect(11, 11, 28, 28));
-    }else if (elapsed.asMicroseconds()<210){
+    }else if (elapsed.asMicroseconds()%2!=0&&elapsed.asMicroseconds()<250){
         setTextureRect(sf::IntRect(61, 11, 28, 28));
-    }else if (elapsed.asMicroseconds()<220){
+    }else if (elapsed.asMicroseconds()%2==0&&elapsed.asMicroseconds()>250){
         setTextureRect(sf::IntRect(111, 11, 28, 28));
     }else{
         setTextureRect(sf::IntRect(161, 11, 28, 28));
